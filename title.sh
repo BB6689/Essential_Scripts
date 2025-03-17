@@ -3,9 +3,8 @@
 # Path to the text file containing the mappings
 MAPPING_FILE="extrCT.txt"
 
-# Read the mapping file line by line
 while IFS= read -r line; do
-    # Extract the folder name (number) and the new name
+    
     FOLDER_NAME=$(echo "$line" | awk '{print $1}')
     NEW_NAME=$(echo "$line" | cut -d' ' -f2-)
 
