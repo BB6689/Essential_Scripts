@@ -33,12 +33,30 @@ combine_videos() {
     read -p "Enter the directory containing MKV files: " VIDEO_DIR
     cd "$VIDEO_DIR" || { echo "Directory not found!"; exit 1; }
 
-    for f in *.mkv; do
-        echo "file '$f'" >> filelist.txt
+    echo "Please enter the order of videos to combine (e.g., 1 3 2 for the first, third, and second files):"
+    select f in *.mkv; do
+        echo "You selected: $f"
+        break
     done
 
-    ffmpeg -f concat -safe 0 -i filelist.txt -c copy output.mkv
-    rm filelist.txt
+    # Create a temporary file to store the ordered list
+    ORDERED_FILE="ordered_filelist.txt"
+    > "$ORDERED_FILE"  # Clear the file if it exists
+
+    # Read the user's order input
+    read -p "Enter the order of the files (space-separated indices): " order_input
+    for index in $order_input; do
+        # Get the filename based on the user's input
+        file=$(ls *.mkv | sed -n "${index}p")
+        if [ -n "$file" ]; then
+            echo "file '$file'" >> "$ORDERED_FILE"
+        else
+            echo "Invalid index: $index"
+        fi
+    done
+
+    ffmpeg -f concat -safe 0 -i "$ORDERED_FILE" -c copy output.mkv
+    rm "$ORDERED_FILE"
     echo "Combined MKV files into output.mkv"
 }
 
